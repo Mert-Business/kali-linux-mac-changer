@@ -1,0 +1,75 @@
+#hello i am mert, i wrote this software to change mac address in kali linux
+#It consists of 3 modes: manual, direct, dynamic. In manual mode, the user enters the mac address himself, in direct mode the system replaces it with a new mac address, in dynamic mode it is constantly changed with a new mac address according to the second specified by the user.
+#I just shared a tool I wrote for myself, you can use it freely
+#python version 3.9.12
+import subprocess
+import sys
+import random
+import time
+
+#for the '--help' parameter
+def user_help():
+    try:
+        if sys.argv[1] == "--help":
+            print("hello, my mac changer \n warning! if you get the 'Cannot assign requested address' error you need to try again \n if you get 'No such device' error you have mistyped network card name\n Note:You can find out the network card by typing 'ifconfig' in the terminal, usually its name is 'eth0'")
+        else:
+            pass
+    except:
+        pass
+user_help()
+
+
+#user option entry
+user_option = str(input("custom mac '1'\njust change '2'\ndynamic mac '3'\n '1','2','3' which ? : "))
+
+
+#lists suitable for mac algorithm to create mac
+number_list = [i for i in range(0, 10)]
+character_list = ["A","B","C","D","E","F","a","b","c","d"]
+
+
+#mac generator
+def mac_generator():
+    while_counter = 0
+    mac = str()
+    while while_counter < 6:
+        while_counter += 1
+        random_sayi = random.choice(number_list)
+        mac += str(number_list[random_sayi])
+        mac += character_list[random_sayi] + ":"
+    mac = mac[0:17]
+    return mac
+
+
+#one choice algorithm
+def user_option_one():
+    if user_option == "1":
+        network_card = input("enter network card name: ")
+        one_option_mac = input("enter mac address 'sample: 05:B5:41:k5:00:01' : ")
+        subprocess.call(["ifconfig",network_card,"down"])
+        subprocess.call(["ifconfig",network_card,"hw","ether",one_option_mac])
+        subprocess.call(["ifconfig",network_card,"up"])
+user_option_one()
+
+#two choice algorithm
+def user_option_two():
+    if user_option == "2":
+        network_card = input("enter network card name: ")
+        subprocess.call(["ifconfig",network_card,"down"])
+        subprocess.call(["ifconfig",network_card,"hw","ether",mac_generator()])
+        subprocess.call(["ifconfig",network_card,"up"])
+user_option_two()
+
+#three choice algorithm
+def user_option_three():
+    if user_option == "3":
+        network_card = input("enter network card name: ")
+        enter_second = int(input("enter the change interval (min. 1 seconds): "))
+        while 0 == 0:
+            time.sleep(enter_second)
+            changing_mac = mac_generator()
+            subprocess.call(["ifconfig",network_card,"down"])
+            subprocess.call(["ifconfig",network_card,"hw","ether",changing_mac])
+            subprocess.call(["ifconfig",network_card,"up"])
+            print("your new mac address " + changing_mac)
+user_option_three()
